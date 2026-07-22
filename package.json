@@ -2,9 +2,11 @@
   "name": "lush_task_list_api",
   "version": "1.0.0",
   "description": "A GraphQL API server using NodeJS, TypeScript, Yoga GQL, Prisma, and Pothos GraphQL to manage task lists and their tasks.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "main": "src/index.ts",
+ "scripts": {
+  "dev": "tsx watch src/index.ts",
+  "start": "tsx src/index.ts",
+  "test": "vitest"
   },
   "repository": {
     "type": "git",
