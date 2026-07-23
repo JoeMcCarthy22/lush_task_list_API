@@ -5,7 +5,11 @@ builder.queryType({
     taskLists: t.field({
         type: ["TaskList"],
         resolve: async(_parent, _args, ctx) => {
-            return ctx.db.taskList.findMany();
+            return ctx.db.taskList.findMany({
+                include: {
+                    tasks: true,
+                },
+            });
         }
     }),
   }),

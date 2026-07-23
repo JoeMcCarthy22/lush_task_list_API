@@ -17,6 +17,25 @@ builder.mutationType({
         });
       },
     }),
+
+    addTask: t.field({
+      type: "Task",
+      args: {
+        taskListId: t.arg.int({
+          required: true,
+        }),
+        title: t.arg.string({
+          required: true,
+        }),
+      },
+      resolve: async (_parent, args, ctx) => {
+        return ctx.db.task.create({
+          data: {
+            title: args.title,
+            taskListId: args.taskListId,
+          },
+        });
+      },
+    }),
   }),
 });
-
