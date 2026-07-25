@@ -1,5 +1,5 @@
-import { argsToArgsConfig } from "graphql/type/definition.js";
 import builder from "../builder.js";
+import { TaskNotFoundError } from "../errors.js";
 
 builder.mutationType({
   fields: (t) => ({
@@ -72,6 +72,16 @@ builder.mutationType({
         }),
       },
       resolve: async (_parent, args, ctx) => {
+        const task = await ctx.db.task.findUnique({
+          where: {
+            id: args.id,
+          },
+        });
+
+        if (!task){
+          throw new TaskNotFoundError();
+        }
+
         return ctx.db.task.delete({
           where: {
             id: args.id,

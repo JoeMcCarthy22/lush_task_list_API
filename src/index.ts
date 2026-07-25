@@ -1,5 +1,6 @@
 import { createYoga } from "graphql-yoga";  // imports's yoga's function creating a graphql server
 import { createServer } from "node:http";
+import { AppError } from "./errors.js";
 
 import builder from "./builder.js";
 import db from "./db.js";
@@ -18,7 +19,21 @@ const yoga = createYoga({
     db,
   },
    maskedErrors: false,
+
+   formatError: (error) => {
+    if (error.originalError instanceof AppError){
+      return {
+        message: error.message,
+        extensions: {
+          code: error.originalError.code,
+        },
+      };
+    }  
+    return error;
+   },
 });
+
+
 
 
 const server = createServer(yoga); // create a Node.js HTTP server with the Yoga instance
