@@ -111,7 +111,10 @@ Returns:
 {
   "errors": [
     {
-      "message": "Task not found"
+      "message": "Task not found",
+      "extensions": {
+        "code": "TASK_NOT_FOUND"
+      }
     }
   ]
 }
@@ -136,6 +139,10 @@ This approach was chosen for simplicity and predictable task retrieval.
 
 Prisma with SQLite was chosen to provide a lightweight and portable database setup suitable for this API. Task lists and tasks are connected.
 
+### Testing
+
+Automated tests were not added due to the time constraints of this exercise. With more time, I would add Vitest integration tests covering successful operations and deliberate error cases.
+
 ## Project Structure
 
 ```text
@@ -159,7 +166,6 @@ src/
 
 ## Future Improvements
 
-- Add automated API tests
-- Improve error handling for invalid foreign key references
+- Add automated API tests using Vitest
 - Improve the formatting of validation errors returned from Zod
 - Add authentication and authorisation
