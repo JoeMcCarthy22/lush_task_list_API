@@ -5,6 +5,8 @@ import { tasksSchema } from "../validation/task.js";
 
 builder.queryType({
   fields: (t) => ({
+
+    // task lists
     taskLists: t.field({
         type: ["TaskList"],
         resolve: async(_parent, _args, ctx) => {
@@ -16,6 +18,7 @@ builder.queryType({
         }
     }),
     
+    // tasks
     tasks: t.field({
         type: ["Task"],
         args: {
@@ -48,6 +51,7 @@ builder.queryType({
             })}
     }),
 
+    // singular task
     task: t.field({
         type: "Task",
         args: {

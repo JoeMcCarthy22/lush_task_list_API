@@ -1,6 +1,7 @@
 import { createYoga } from "graphql-yoga";  // imports's yoga's function creating a graphql server
 import { createServer } from "node:http";
 import { AppError } from "./errors.js";
+import { useMaskedErrors } from "@envelop/core";
 
 import builder from "./builder.js";
 import db from "./db.js";
@@ -18,21 +19,8 @@ const yoga = createYoga({
   context: {
     db,
   },
-   maskedErrors: false,
-   
-   formatError: (error) => {
-    if (error.originalError instanceof AppError){
-      return {
-        message: error.message,
-        extensions: {
-          code: error.originalError.code,
-        },
-      };
-    }  
-    return error;
-   },
+  maskedErrors: false,
 });
-
 
 
 

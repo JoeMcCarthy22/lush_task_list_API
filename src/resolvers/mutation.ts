@@ -1,11 +1,13 @@
 import builder from "../builder.js";
-import { TaskNotFoundError } from "../errors.js";
+import { TaskListNotFoundError, TaskNotFoundError } from "../errors.js";
 import { addTaskSchema } from "../validation/task.js";
 import { updateTaskSchema } from "../validation/task.js";
 import { deleteTaskSchema } from "../validation/task.js";
 import { addTaskListSchema } from "../validation/task.js";
 
+
 builder.mutationType({
+  // add task list
   fields: (t) => ({
     addTaskList: t.field({
       type: "TaskList",
@@ -24,6 +26,7 @@ builder.mutationType({
       },
     }),
 
+    // add task
     addTask: t.field({
       type: "Task",
       args: {
@@ -37,6 +40,17 @@ builder.mutationType({
 
       resolve: async (_parent, args, ctx) => {
          const validated = addTaskSchema.parse(args);
+
+         const taskList = await ctx.db.taskList.findUnique({
+           where: {
+            id: validated.taskListId,
+              },
+            });
+
+        if (!taskList) {
+          throw new TaskListNotFoundError();
+        }
+
         return ctx.db.task.create({
           data: {
             title: validated.title,
@@ -45,7 +59,8 @@ builder.mutationType({
         });
       },
     }),
-
+    
+    // update task
     updateTask: t.field({
     type: "Task",
     args: {
@@ -84,6 +99,7 @@ builder.mutationType({
   },
 }),
 
+// delete task
     deleteTask: t.field({
       type: "Task",
       args: {
