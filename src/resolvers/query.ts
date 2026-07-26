@@ -1,4 +1,7 @@
 import builder from "../builder.js";
+import { TaskNotFoundError } from "../errors.js";
+import { taskSchema } from "../validation/task.js";
+import { tasksSchema } from "../validation/task.js";
 
 builder.queryType({
   fields: (t) => ({
@@ -29,17 +32,19 @@ builder.queryType({
                 required: false,
             }),
         },
-        resolve: async(_parent, args, ctx) => { 
+        resolve: async(_parent, args, ctx) => {
+            const validated = tasksSchema.parse(args);
+
             return ctx.db.task.findMany({
                 where: {
-                    taskListId: args.taskListId,
-                    completed: args.completed,
+                    taskListId: validated.taskListId,
+                    completed: validated.completed,
                 },
                 orderBy: {
                     createdAt: "asc",
                 },
-                skip: args.skip,
-                take: args.take,
+                skip: validated.skip,
+                take: validated.take,
             })}
     }),
 
@@ -50,13 +55,20 @@ builder.queryType({
                 required: true,
             }),
         },
+
         resolve: async(_parent, args, ctx) => {
-            return ctx.db.task.findUnique({
+            const validated = taskSchema.parse(args);          
+            const task = await ctx.db.task.findUnique({
                 where: {
-                    id: args.id,
+                    id: validated.id,
                 },
             });
+            if (!task) {
+            throw new TaskNotFoundError();
+            }
+            return task;
         }
     })
+
   }),
 });

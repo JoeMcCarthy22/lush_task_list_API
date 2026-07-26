@@ -19,7 +19,7 @@ const yoga = createYoga({
     db,
   },
    maskedErrors: false,
-
+   
    formatError: (error) => {
     if (error.originalError instanceof AppError){
       return {

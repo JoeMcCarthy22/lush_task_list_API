@@ -1,5 +1,9 @@
 import builder from "../builder.js";
 import { TaskNotFoundError } from "../errors.js";
+import { addTaskSchema } from "../validation/task.js";
+import { updateTaskSchema } from "../validation/task.js";
+import { deleteTaskSchema } from "../validation/task.js";
+import { addTaskListSchema } from "../validation/task.js";
 
 builder.mutationType({
   fields: (t) => ({
@@ -11,9 +15,10 @@ builder.mutationType({
         }),
       },
       resolve: async (_parent, args, ctx) => {
+        const validated = addTaskListSchema.parse(args);
         return ctx.db.taskList.create({
           data: {
-            name: args.name,
+            name: validated.name,
           },
         });
       },
@@ -29,40 +34,55 @@ builder.mutationType({
           required: true,
         }),
       },
+
       resolve: async (_parent, args, ctx) => {
+         const validated = addTaskSchema.parse(args);
         return ctx.db.task.create({
           data: {
-            title: args.title,
-            taskListId: args.taskListId,
+            title: validated.title,
+            taskListId: validated.taskListId,
           },
         });
       },
     }),
 
     updateTask: t.field({
-      type: "Task",
-      args: {
-        id: t.arg.int({
-          required: true,
-        }),
-        title: t.arg.string({
-          required: false,
-        }),
-        completed: t.arg.boolean({
-          required: false,
-        }),
-      },
-      resolve: async (_parent, args, ctx) => {
-        return ctx.db.task.update({
-          where: {id: args.id, 
-          },
-        data: {
-          title: args.title,
-          completed: args.completed,
+    type: "Task",
+    args: {
+      id: t.arg.int({
+        required: true,
+      }),
+      title: t.arg.string({
+        required: false,
+      }),
+      completed: t.arg.boolean({
+        required: false,
+      }),
+    },
+    resolve: async (_parent, args, ctx) => {
+      const task = await ctx.db.task.findUnique({
+        where: {
+          id: args.id,
         },
-        });
-      }
-    }),
+      });
+
+    if (!task) {
+      throw new TaskNotFoundError();
+    }
+
+    const validated = updateTaskSchema.parse(args);
+
+    return ctx.db.task.update({
+      where: {
+        id: validated.id,
+      },
+      data: {
+        title: validated.title,
+        completed: validated.completed,
+      },
+    });
+  },
+}),
 
     deleteTask: t.field({
       type: "Task",
@@ -82,9 +102,11 @@ builder.mutationType({
           throw new TaskNotFoundError();
         }
 
+        const validated = deleteTaskSchema.parse(args);
+
         return ctx.db.task.delete({
           where: {
-            id: args.id,
+            id: validated.id,
           },
         }) 
       },
