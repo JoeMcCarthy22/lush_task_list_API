@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { addTaskListSchema, addTaskSchema } from "./task";
+import { addTaskListSchema, addTaskSchema } from "./task.js";
 
 // Task list tests
 describe("addTaskListSchema", () => {
