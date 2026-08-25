@@ -1,6 +1,6 @@
 import { createYoga } from "graphql-yoga";
-import schema from "./schema.js";
 import db from "./db.js";
+import schema from "./schema.js";
 
 const yoga = createYoga({
   schema,

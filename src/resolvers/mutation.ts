@@ -1,10 +1,11 @@
 import builder from "../builder.js";
 import { TaskListNotFoundError, TaskNotFoundError } from "../errors.js";
-import { addTaskSchema } from "../validation/task.js";
-import { updateTaskSchema } from "../validation/task.js";
-import { deleteTaskSchema } from "../validation/task.js";
-import { addTaskListSchema } from "../validation/task.js";
-
+import {
+  addTaskListSchema,
+  addTaskSchema,
+  deleteTaskSchema,
+  updateTaskSchema,
+} from "../validation/task.js";
 
 builder.mutationType({
   // add task list
@@ -39,13 +40,13 @@ builder.mutationType({
       },
 
       resolve: async (_parent, args, ctx) => {
-         const validated = addTaskSchema.parse(args);
+        const validated = addTaskSchema.parse(args);
 
-         const taskList = await ctx.db.taskList.findUnique({
-           where: {
+        const taskList = await ctx.db.taskList.findUnique({
+          where: {
             id: validated.taskListId,
-              },
-            });
+          },
+        });
 
         if (!taskList) {
           throw new TaskListNotFoundError();
@@ -59,47 +60,47 @@ builder.mutationType({
         });
       },
     }),
-    
+
     // update task
     updateTask: t.field({
-    type: "Task",
-    args: {
-      id: t.arg.int({
-        required: true,
-      }),
-      title: t.arg.string({
-        required: false,
-      }),
-      completed: t.arg.boolean({
-        required: false,
-      }),
-    },
-    resolve: async (_parent, args, ctx) => {
-      const task = await ctx.db.task.findUnique({
-        where: {
-          id: args.id,
-        },
-      });
-
-    if (!task) {
-      throw new TaskNotFoundError();
-    }
-
-    const validated = updateTaskSchema.parse(args);
-
-    return ctx.db.task.update({
-      where: {
-        id: validated.id,
+      type: "Task",
+      args: {
+        id: t.arg.int({
+          required: true,
+        }),
+        title: t.arg.string({
+          required: false,
+        }),
+        completed: t.arg.boolean({
+          required: false,
+        }),
       },
-      data: {
-        title: validated.title,
-        completed: validated.completed,
-      },
-    });
-  },
-}),
+      resolve: async (_parent, args, ctx) => {
+        const task = await ctx.db.task.findUnique({
+          where: {
+            id: args.id,
+          },
+        });
 
-// delete task
+        if (!task) {
+          throw new TaskNotFoundError();
+        }
+
+        const validated = updateTaskSchema.parse(args);
+
+        return ctx.db.task.update({
+          where: {
+            id: validated.id,
+          },
+          data: {
+            title: validated.title,
+            completed: validated.completed,
+          },
+        });
+      },
+    }),
+
+    // delete task
     deleteTask: t.field({
       type: "Task",
       args: {
@@ -114,7 +115,7 @@ builder.mutationType({
           },
         });
 
-        if (!task){
+        if (!task) {
           throw new TaskNotFoundError();
         }
 
@@ -124,9 +125,8 @@ builder.mutationType({
           where: {
             id: validated.id,
           },
-        }) 
+        });
       },
     }),
-
   }),
 });

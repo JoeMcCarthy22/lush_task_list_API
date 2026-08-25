@@ -9,6 +9,4 @@ const builder = new SchemaBuilder<{
   };
 }>({});
 
-
-
 export default builder;

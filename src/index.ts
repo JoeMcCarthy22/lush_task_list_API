@@ -1,10 +1,4 @@
-import { createYoga } from "graphql-yoga";  // imports's yoga's function creating a graphql server
 import { createServer } from "node:http";
-import { AppError } from "./errors.js";
-import { useMaskedErrors } from "@envelop/core";
-
-import schema from "./schema.js";
-import db from "./db.js";
 
 import yoga from "./yoga.js";
 

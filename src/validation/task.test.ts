@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { addTaskListSchema, addTaskSchema } from "./task.js";
 
 // Task list tests
@@ -15,7 +15,7 @@ describe("addTaskListSchema", () => {
     expect(() =>
       addTaskListSchema.parse({
         name: "",
-      })
+      }),
     ).toThrow();
   });
 });
@@ -37,7 +37,7 @@ describe("addTaskSchema", () => {
       addTaskSchema.parse({
         taskListId: 1,
         title: "",
-      })
+      }),
     ).toThrow();
   });
 
@@ -46,17 +46,15 @@ describe("addTaskSchema", () => {
       addTaskSchema.parse({
         taskListId: 0,
         title: "My Task",
-      })
+      }),
     ).toThrow();
   });
 
-  it ("rejects a task title longer than 100 characters", () => {
-    expect(() => 
-        addTaskSchema.parse({
-            title: "a".repeat(101),
-        })
+  it("rejects a task title longer than 100 characters", () => {
+    expect(() =>
+      addTaskSchema.parse({
+        title: "a".repeat(101),
+      }),
     ).toThrow();
   });
-
 });
-
