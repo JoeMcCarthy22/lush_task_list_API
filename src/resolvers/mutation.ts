@@ -4,7 +4,9 @@ import {
   addTaskListSchema,
   addTaskSchema,
   completeAllTasksSchema,
+  deleteTaskListSchema,
   deleteTaskSchema,
+  UncompleteAllTasksSchema,
   updateTaskSchema,
 } from "../validation/task.js";
 
@@ -162,6 +164,74 @@ builder.mutationType({
         return ctx.db.task.findMany({
           where: {
             taskListId: validated.taskListId,
+          },
+        });
+      },
+    }),
+
+    // uncomplete all tasks in a list
+    uncompleteAllTasks: t.field({
+      type: ["Task"],
+      args: {
+        taskListId: t.arg.int({
+          required: true,
+        }),
+      },
+
+      resolve: async (_parent, args, ctx) => {
+        const validated = UncompleteAllTasksSchema.parse(args);
+        const taskList = await ctx.db.taskList.findUnique({
+          where: {
+            id: args.taskListId,
+          },
+        });
+
+        if (!taskList) {
+          throw new TaskListNotFoundError();
+        }
+
+        await ctx.db.task.updateMany({
+          where: {
+            taskListId: validated.taskListId,
+          },
+          data: {
+            completed: false,
+          },
+        });
+
+        return ctx.db.task.findMany({
+          where: {
+            taskListId: validated.taskListId,
+          },
+        });
+      },
+    }),
+
+    // delete task list
+    deleteTaskList: t.field({
+      type: "TaskList",
+      args: {
+        id: t.arg.int({
+          required: true,
+        }),
+      },
+
+      resolve: async (_parent, args, ctx) => {
+        const validated = deleteTaskListSchema.parse(args);
+
+        const taskList = await ctx.db.taskList.findUnique({
+          where: {
+            id: validated.id,
+          },
+        });
+
+        if (!taskList) {
+          throw new TaskListNotFoundError();
+        }
+
+        return ctx.db.taskList.delete({
+          where: {
+            id: validated.id,
           },
         });
       },

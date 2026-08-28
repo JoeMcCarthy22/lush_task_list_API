@@ -36,3 +36,11 @@ export const addTaskListSchema = z.object({
 export const completeAllTasksSchema = z.object({
   taskListId: z.number().int().positive(),
 });
+
+export const UncompleteAllTasksSchema = z.object({
+  taskListId: z.number().int().positive(),
+});
+
+export const deleteTaskListSchema = z.object({
+  id: z.number().int().positive(),
+});
