@@ -32,3 +32,7 @@ export const tasksSchema = z.object({
 export const addTaskListSchema = z.object({
   name: z.string().trim().min(1).max(100),
 });
+
+export const completeAllTasksSchema = z.object({
+  taskListId: z.number().int().positive(),
+});

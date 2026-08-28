@@ -1,3 +1,4 @@
+import { id } from "zod/locales";
 import builder from "../builder.js";
 import { TaskListNotFoundError, TaskNotFoundError } from "../errors.js";
 import {
@@ -5,6 +6,7 @@ import {
   addTaskSchema,
   deleteTaskSchema,
   updateTaskSchema,
+  completeAllTasksSchema,
 } from "../validation/task.js";
 
 builder.mutationType({
@@ -124,6 +126,43 @@ builder.mutationType({
         return ctx.db.task.delete({
           where: {
             id: validated.id,
+          },
+        });
+      },
+    }),
+
+     // complete all tasks in a task list
+    completeAllTasks: t.field({
+      type: ["Task"],
+      args: {
+        taskListId: t.arg.int({
+          required: true
+        })
+      },
+      resolve: async(_parent, args, ctx) => {
+        const validated = completeAllTasksSchema.parse(args);
+        const taskList = await ctx.db.taskList.findUnique({
+          where: {
+            id: args.taskListId,
+          },
+        });
+
+        if (!taskList){
+          throw new TaskListNotFoundError();
+        }
+
+        await ctx.db.task.updateMany({
+          where: {
+            taskListId: validated.taskListId, 
+          },
+          data: {
+            completed: true,
+          }
+        });
+
+        return ctx.db.task.findMany({
+          where: {
+            taskListId: validated.taskListId,
           },
         });
       },
