@@ -1,8 +1,6 @@
 import { expect, it } from "vitest";
 import yoga from "./yoga.js";
 
-
-
 // test mutation to add task list
 const addTaskList = `
   mutation {
@@ -12,8 +10,6 @@ const addTaskList = `
     }
   }
 `;
-
-
 
 // integration test to add a task list
 it("creates a task list with the correct name", async () => {
@@ -32,12 +28,11 @@ it("creates a task list with the correct name", async () => {
   expect(result.data.addTaskList.name).toBe("Integration Test List");
 });
 
-
 // delete a task list
 
 // add task list first
 it("adds a task list, then deletes the task list", async () => {
- const response = await yoga.fetch("http://localhost:4000/graphql", {
+  const response = await yoga.fetch("http://localhost:4000/graphql", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -51,7 +46,7 @@ it("adds a task list, then deletes the task list", async () => {
 
   const taskListId = result.data.addTaskList.id;
 
-   // test mutation to delete task list
+  // test mutation to delete task list
 
   const deleteTaskList = `
     mutation {
@@ -60,9 +55,8 @@ it("adds a task list, then deletes the task list", async () => {
       }
     }
   `;
-  
 
-// delete task list
+  // delete task list
   const deleteRequest = await yoga.fetch("http://localhost:4000/graphql", {
     method: "POST",
     headers: {
@@ -75,8 +69,5 @@ it("adds a task list, then deletes the task list", async () => {
 
   const deleteResponse = await deleteRequest.json();
 
-
   expect(deleteResponse.data.deleteTaskList.id).toBe(taskListId);
-
-
 });

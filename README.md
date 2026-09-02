@@ -1,15 +1,18 @@
 # Lush Task List API
 
-A GraphQL task management API built with TypeScript, GraphQL Yoga, Pothos, Prisma and SQLite.
+A GraphQL task management API built with TypeScript, GraphQL Yoga, Pothos, Prisma and PostgreSQL.
 
 The API supports:
 
-* creating task lists
-* creating, updating and deleting tasks
-* querying task lists and tasks
+* Creating and deleting task lists
+* Creating, updating and deleting tasks
+* Completing and uncompleting all tasks within a task list
+* Querying task lists and tasks
+* Offset-based pagination
 
 Validation is handled using Zod.
-Errors are handled deliberately for requests involving missing task records.
+
+Custom errors are used for requests involving missing task or task list records.
 
 ## Tech Stack
 
@@ -17,8 +20,10 @@ Errors are handled deliberately for requests involving missing task records.
 * GraphQL Yoga
 * Pothos GraphQL
 * Prisma ORM
-* SQLite
+* PostgreSQL
 * Zod
+* Vitest
+* Docker
 
 ## Installation
 
@@ -34,7 +39,7 @@ Install dependencies:
 npm install
 ```
 
-Generate Prisma client:
+Generate the Prisma client:
 
 ```bash
 npx prisma generate
@@ -46,7 +51,7 @@ Run database migrations:
 npx prisma migrate dev
 ```
 
-Start development server:
+Start the development server:
 
 ```bash
 npm run dev
@@ -54,11 +59,34 @@ npm run dev
 
 The GraphQL endpoint is available at:
 
-```
+```text
 http://localhost:4000/graphql
 ```
 
+## Testing
+
+The project uses Vitest for automated testing.
+
+Run the test suite with:
+
+```bash
+npm test
+```
+
+The test suite includes unit tests for validation and integration tests covering GraphQL mutations.
+
 ## API Examples
+
+### Create a task list
+
+```graphql
+mutation {
+  addTaskList(name: "Shopping List") {
+    id
+    name
+  }
+}
+```
 
 ### Create a task
 
@@ -83,7 +111,7 @@ query {
 }
 ```
 
-### Update a task (completion status or title)
+### Update a task
 
 ```graphql
 mutation {
@@ -93,6 +121,53 @@ mutation {
   }
 }
 ```
+
+### Delete a task
+
+```graphql
+mutation {
+  deleteTask(id: 1) {
+    id
+  }
+}
+```
+
+### Complete all tasks in a task list
+
+```graphql
+mutation {
+  completeAllTasks(taskListId: 1) {
+    id
+    title
+    completed
+  }
+}
+```
+
+### Uncomplete all tasks in a task list
+
+```graphql
+mutation {
+  uncompleteAllTasks(taskListId: 1) {
+    id
+    title
+    completed
+  }
+}
+```
+
+### Delete a task list
+
+```graphql
+mutation {
+  deleteTaskList(id: 1) {
+    id
+    name
+  }
+}
+```
+
+Deleting a task list also deletes its associated tasks through the database relationship.
 
 ### Requesting a task that does not exist
 
@@ -133,20 +208,24 @@ Custom errors are thrown for missing records to avoid exposing raw Prisma errors
 ### Pagination
 
 Offset-based pagination is implemented using Prisma's `skip` and `take` arguments.
+
 This approach was chosen for simplicity and predictable task retrieval.
 
 ### Database
 
-Prisma with SQLite was chosen to provide a lightweight and portable database setup suitable for this API. Task lists and tasks are connected.
+Prisma with PostgreSQL was chosen as the database layer for the API. Task lists and tasks are connected through a relational database relationship, with associated tasks deleted when their parent task list is deleted.
 
 ### Testing
 
-Automated tests were not added due to the time constraints of this exercise. With more time, I would add Vitest integration tests covering successful operations and deliberate error cases.
+Vitest is used for automated testing.
+
+Unit tests cover validation behaviour, while integration tests exercise the GraphQL API through GraphQL Yoga and verify successful database operations.
 
 ## Project Structure
 
 ```text
 src/
+
 ├── builder.ts
 ├── db.ts
 ├── errors.ts
@@ -160,12 +239,30 @@ src/
 │   ├── task.ts
 │   └── taskList.ts
 │
+├── validation/
+│   └── task.ts
+│
+├── integration.test.ts
 └── validation/
-    └── task.ts
+    └── task.test.ts
+```
+
+## Available Scripts
+
+```bash
+npm run dev      # Start development server with watch mode
+npm start        # Start the server
+npm test         # Run tests with Vitest
+npm run lint     # Run Biome checks
+npm run format   # Format the project with Biome
 ```
 
 ## Future Improvements
 
-- Add automated API tests using Vitest
-- Improve the formatting of validation errors returned from Zod
-- Add authentication and authorisation
+* Improve the formatting of validation errors returned from Zod
+* Add authentication and authorisation
+* Expand integration test coverage for error cases
+* Add further task list and task querying functionality
+
+```
+
