@@ -266,3 +266,6 @@ npm run format   # Format the project with Biome
 
 ```
 
+
+## Git workflow practice
+This change was made as part of a practice pull request.
